@@ -1,0 +1,15 @@
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+.env
+.env.*
+*.p12
+*.pem
+*.key
+.idea/
+*.iml
+.vscode/
+.DS_Store
+

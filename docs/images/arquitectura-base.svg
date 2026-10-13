@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="700" viewBox="0 0 1240 700" role="img" aria-labelledby="title desc">
+  <title id="title">Arquitectura base DOSW Parcial T2</title>
+  <desc id="desc">Diagrama UML de paquetes para cliente REST, controlador, core, persistencia, configuración y MongoDB.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#3c78a8"/></marker>
+    <marker id="arrowGray" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#6b7280"/></marker>
+    <marker id="arrowTeal" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#258a7a"/></marker>
+    <marker id="openArrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M1,1 L9,4 L1,7" fill="none" stroke="#c47b27" stroke-width="1.5"/></marker>
+    <style>
+      text{font-family:Arial,Helvetica,sans-serif;fill:#17324d}.title{font-size:25px;font-weight:bold}.box-title{font-size:19px;font-weight:bold}.body{font-size:15px}.small{font-size:13px}.implemented{fill:#238636;font-weight:bold}.planned{fill:#626d78;font-style:italic}.box{stroke-width:2}.line{fill:none;stroke-width:2.3}.dashed{stroke-dasharray:8 6}
+    </style>
+  </defs>
+  <rect width="1240" height="700" fill="#ffffff"/>
+  <text x="30" y="45" class="title">DOSW Parcial T2 — Arquitectura base (MVC + MongoDB)</text>
+  <rect x="30" y="75" width="1180" height="55" rx="10" fill="#fff8e1" stroke="#e4b84a" stroke-width="2"/>
+  <text x="48" y="99" class="body">Estado: HealthController, ParcialApplication y SecurityConfig están implementados.</text>
+  <text x="48" y="119" class="body">Los paquetes de negocio y persistencia son el scaffolding previsto para el laboratorio.</text>
+
+  <rect x="30" y="260" width="165" height="90" rx="12" class="box" fill="#eaf2f8" stroke="#3c78a8"/>
+  <text x="112" y="294" class="box-title" text-anchor="middle">Cliente</text><text x="112" y="320" class="body" text-anchor="middle">Navegador / REST</text>
+
+  <rect x="250" y="180" width="230" height="190" rx="12" class="box" fill="#e8f5e9" stroke="#39834a"/>
+  <text x="270" y="213" class="box-title">controller</text><text x="270" y="244" class="body">HealthController</text><text x="270" y="267" class="body">GET /api/v1/health</text>
+  <text x="270" y="292" class="body implemented">Implementado</text><line x1="270" y1="306" x2="460" y2="306" stroke="#a9c9ad"/>
+  <text x="270" y="330" class="body">dtos · mappers · handlers</text><text x="270" y="353" class="small planned">Scaffolding</text>
+
+  <rect x="570" y="180" width="220" height="190" rx="12" class="box" fill="#f3e8ff" stroke="#8b5fbf"/>
+  <text x="590" y="213" class="box-title">core</text><text x="590" y="247" class="body">services</text><text x="590" y="273" class="body">models · validators</text><text x="590" y="299" class="body">utils</text><text x="590" y="343" class="small planned">Scaffolding</text>
+
+  <rect x="880" y="180" width="240" height="190" rx="12" class="box" fill="#e0f2f1" stroke="#258a7a"/>
+  <text x="900" y="213" class="box-title">persistence</text><text x="900" y="247" class="body">repositories</text><text x="900" y="273" class="body">entities (@Document)</text><text x="900" y="299" class="body">mappers OUT</text><text x="900" y="343" class="small planned">Scaffolding</text>
+
+  <rect x="250" y="455" width="300" height="145" rx="12" class="box" fill="#fff3e0" stroke="#c47b27"/>
+  <text x="272" y="489" class="box-title">config / main</text><text x="272" y="519" class="body">SecurityConfig · ParcialApplication</text><text x="272" y="545" class="body">application.yaml</text><text x="272" y="573" class="body">JWT_SECRET · MONGODB_URI</text>
+
+  <path d="M935 475 Q1020 438 1105 475 L1105 570 Q1020 606 935 570 Z" fill="#e8f5e9" stroke="#39834a" stroke-width="2"/>
+  <ellipse cx="1020" cy="475" rx="85" ry="17" fill="#e8f5e9" stroke="#39834a" stroke-width="2"/>
+  <text x="1020" y="511" class="box-title" text-anchor="middle">MongoDB Atlas</text><text x="1020" y="537" class="body" text-anchor="middle">Cluster dosw-cluster</text><text x="1020" y="559" class="body" text-anchor="middle">Base dosw_parcial</text>
+
+  <path d="M195 305 H250" class="line" stroke="#3c78a8" marker-end="url(#arrow)"/><text x="199" y="292" class="small">HTTP / JSON</text>
+  <path d="M480 270 H570" class="line dashed" stroke="#6b7280" marker-end="url(#arrowGray)"/><text x="481" y="253" class="small">caso de uso</text>
+  <path d="M790 270 H880" class="line dashed" stroke="#6b7280" marker-end="url(#arrowGray)"/><text x="792" y="253" class="small">dominio → mapper OUT</text>
+  <path d="M1000 370 V450" class="line" stroke="#258a7a" marker-end="url(#arrowTeal)"/><text x="1010" y="414" class="small">Spring Data MongoDB</text>
+  <path d="M400 455 V405 H365 V370" class="line dashed" stroke="#c47b27" marker-end="url(#openArrow)"/><text x="268" y="424" class="small">configura y protege rutas</text>
+  <path d="M550 570 H700 V630 H1020 V590" class="line dashed" stroke="#c47b27" marker-end="url(#openArrow)"/><text x="620" y="615" class="small">URI desde variable de entorno</text>
+
+  <text x="30" y="670" class="small" fill="#52606d">Flecha continua: integración implementada/configurada · Flecha discontinua: flujo previsto para el laboratorio</text>
+</svg>
