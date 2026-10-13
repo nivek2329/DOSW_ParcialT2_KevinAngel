@@ -1,0 +1,47 @@
+<mxfile host="app.diagrams.net" agent="Codex">
+  <diagram id="arquitectura-base" name="Arquitectura base">
+    <mxGraphModel dx="2038" dy="1130" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1240" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=24;fontStyle=1;fontColor=#17324D;" value="DOSW Parcial T2 — Arquitectura base (MVC + MongoDB)" vertex="1">
+          <mxGeometry height="40" width="900" x="258" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="client" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF2F8;strokeColor=#3C78A8;fontSize=15;" value="&lt;b&gt;Cliente&lt;/b&gt;&lt;br&gt;Navegador / consumidor REST" vertex="1">
+          <mxGeometry height="80" width="165" x="455" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="V1nhmOFMIB_SFuVawYqB-16" parent="1" style="shape=component;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=light-dark(#e0f2f1, #1d293b);strokeColor=#6C8EBF;fontSize=11;spacingLeft=6;" value="&lt;span style=&quot;font-size: 15px;&quot;&gt;&lt;b&gt;BOB´S BARBER&lt;/b&gt;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;&lt;b&gt;BACKEND&lt;/b&gt;&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="110" width="210" x="855" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="V1nhmOFMIB_SFuVawYqB-21" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#E8F5E9;strokeColor=#39834A;fontSize=15;" value="&lt;b&gt;MongoDB Atlas&lt;/b&gt;&lt;br&gt;Cluster dosw-cluster&lt;br&gt;Base dosw_parcial" vertex="1">
+          <mxGeometry height="125" width="200" x="841" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="V1nhmOFMIB_SFuVawYqB-22" edge="1" parent="1" source="V1nhmOFMIB_SFuVawYqB-16" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#258A7A;fontSize=12;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="V1nhmOFMIB_SFuVawYqB-21" value="Spring Data MongoDB">
+          <mxGeometry relative="1" x="0.0262" as="geometry">
+            <Array as="points">
+              <mxPoint x="955" y="280" />
+              <mxPoint x="955" y="320" />
+              <mxPoint x="965" y="320" />
+              <mxPoint x="965" y="330" />
+              <mxPoint x="975" y="330" />
+            </Array>
+            <mxPoint x="705" y="397.5" as="sourcePoint" />
+            <mxPoint x="725" y="492.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="V1nhmOFMIB_SFuVawYqB-27" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;startArrow=oval;startFill=0;endFill=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="750" y="220" as="sourcePoint" />
+            <mxPoint x="630" y="220" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="V1nhmOFMIB_SFuVawYqB-28" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;startArrow=halfCircle;startFill=0;endFill=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="770" y="220" as="sourcePoint" />
+            <mxPoint x="850" y="220" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

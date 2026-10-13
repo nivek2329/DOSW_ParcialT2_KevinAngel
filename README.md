@@ -65,9 +65,8 @@ src/test/resources/                         Recursos de pruebas
 
 El Mapper IN convierte DTOs en objetos de dominio y viceversa. El Mapper OUT convierte entre dominio y documentos MongoDB. Los controladores no dependen de documentos de persistencia.
 
-Diagrama fuente editable: [`arquitectura-base.drawio`](docs/uml/componentes general .drawio)
 
-![Diagrama UML de arquitectura base MVC y MongoDB](docs/images/arquitectura-base.svg)
+![Diagrama UML de componentes general](diagrama_componentes_general.svg)
 
 ## 5. Tecnologías y dependencias
 
