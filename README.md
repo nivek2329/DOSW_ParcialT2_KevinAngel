@@ -14,11 +14,12 @@
 10. [CI/CD](#10-cicd)
 11. [Herramientas de modelado y diseño (evidencias)](#11-herramientas-de-modelado-y-diseño-evidencias)
 
+
 ## 1. Datos del estudiante
 
-- **Nombre completo:** Kevin Andrey Angel Acevedo
+- **Nombre completo:** Kevin Andrey Angel Acevedo,santiago andres garcia
 - **Grupo:** 1
-- **Profesor:** agregado como colaborador del repositorio
+- **Profesor:** andres martin cantor
 
 ## 2. Descripción del proyecto
 
@@ -64,7 +65,7 @@ src/test/resources/                         Recursos de pruebas
 
 El Mapper IN convierte DTOs en objetos de dominio y viceversa. El Mapper OUT convierte entre dominio y documentos MongoDB. Los controladores no dependen de documentos de persistencia.
 
-Diagrama fuente editable: [`arquitectura-base.drawio`](docs/uml/arquitectura-base.drawio).
+Diagrama fuente editable: [`arquitectura-base.drawio`](docs/uml/componentes general .drawio)
 
 ![Diagrama UML de arquitectura base MVC y MongoDB](docs/images/arquitectura-base.svg)
 
@@ -158,3 +159,7 @@ El workflow [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml) ejecuta
 ![Acceso a Draw.io](docs/images/evidencia-drawio.png)
 
 ![Acceso a Figma](docs/images/evidencia-figma.png)
+
+
+
+
