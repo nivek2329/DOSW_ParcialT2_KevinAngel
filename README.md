@@ -26,9 +26,13 @@ Servicio REST base para el parcial práctico del segundo tercio de DOSW. Incluye
 
 ## 3. Despliegue
 
-- **Servicio Azure:** pendiente de crear
-- **Health:** `https://<nombre-app>.azurewebsites.net/api/v1/health`
-- **Swagger:** `https://<nombre-app>.azurewebsites.net/swagger-ui/index.html`
+- **Servicio Azure:** [DOSW Parcial T2](https://dosw-parcial-t2-kevin-fuapdsgbgcgebnbn.centralus-01.azurewebsites.net)
+- **Health:** [GET /api/v1/health](https://dosw-parcial-t2-kevin-fuapdsgbgcgebnbn.centralus-01.azurewebsites.net/api/v1/health) — verificado, responde `{"service":"DOSW-ParcialT2","status":"UP"}`.
+- **Swagger:** [Swagger UI](https://dosw-parcial-t2-kevin-fuapdsgbgcgebnbn.centralus-01.azurewebsites.net/swagger-ui/index.html) — verificado.
+
+![Respuesta del health desplegado en Azure](docs/images/azure-health.png)
+
+![Swagger desplegado en Azure](docs/images/azure-swagger.png)
 
 ## 4. Estructura del proyecto
 
@@ -59,6 +63,10 @@ src/test/resources/                         Recursos de pruebas
 ```
 
 El Mapper IN convierte DTOs en objetos de dominio y viceversa. El Mapper OUT convierte entre dominio y documentos MongoDB. Los controladores no dependen de documentos de persistencia.
+
+Diagrama fuente editable: [`arquitectura-base.drawio`](docs/uml/arquitectura-base.drawio).
+
+![Diagrama UML de arquitectura base MVC y MongoDB](docs/images/arquitectura-base.svg)
 
 ## 5. Tecnologías y dependencias
 
@@ -116,7 +124,9 @@ mvn test
 mvn clean verify
 ```
 
-JaCoCo genera el reporte HTML en `target/site/jacoco/index.html`. Agregar aquí una captura del resultado en verde y otra del reporte cuando se ejecute la verificación.
+`mvn clean verify` pasó con 1 prueba. JaCoCo genera el reporte HTML en `target/site/jacoco/index.html`; la captura muestra la cobertura actual del scaffolding (13%).
+
+![Reporte de cobertura JaCoCo](docs/images/jacoco-reporte.png)
 
 El análisis SonarQube se puede ejecutar con `mvn sonar:sonar -Dsonar.host.url=<url-del-servidor> -Dsonar.token=<token>`; configurar la URL y el token fuera del repositorio.
 
@@ -128,14 +138,23 @@ $env:JWT_SECRET = [Convert]::ToBase64String([byte[]](1..48 | ForEach-Object { Ge
 docker run --rm -p 8080:8080 -e JWT_SECRET=$env:JWT_SECRET dosw-parcial:local
 ```
 
-Para utilizar otra base de datos, pasar también `-e MONGODB_URI='<uri-de-mongodb>'`. Agregar aquí una captura del contenedor ejecutándose.
+Para utilizar otra base de datos, pasar también `-e MONGODB_URI='<uri-de-mongodb>'`.
+
+![Imagen Docker construida y contenedor local en ejecución](docs/images/docker-contenedor-redacted.png)
+
+![Endpoint health local respondiendo](docs/images/docker-health-local.png)
 
 ## 10. CI/CD
 
-El workflow [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml) ejecuta `mvn verify` en los pushes a `main` y `develop`, publica la imagen `dosw-parcial-t2:latest` en Docker Hub y solicita el despliegue en Azure App Service. Requiere los secrets `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `AZURE_CREDENTIALS`, `AZURE_WEBAPP_NAME` y `JWT_SECRET`. Agregar aquí una captura del workflow en verde.
+El workflow [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml) ejecuta `mvn verify` en los pushes a `main` y `develop`, publica la imagen `dosw-parcial-t2:latest` en Docker Hub y la despliega en Azure App Service. Requiere los secrets `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `AZURE_CREDENTIALS`, `AZURE_WEBAPP_NAME` y `JWT_SECRET`. El workflow terminó correctamente con los jobs `test`, `docker` y `deploy` en verde.
+
+![Pipeline CI/CD exitoso en GitHub Actions](docs/images/github-actions-exitoso.png)
 
 ## 11. Herramientas de modelado y diseño (evidencias)
 
-- Herramienta de modelado elegida: pendiente (Draw.io, Lucidchart o Miro).
-- Figma: pendiente de confirmar acceso.
-- Agregar capturas de acceso a las cuentas en esta sección y guardarlas en `docs/images/`.
+- Herramienta de modelado elegida: Draw.io.
+- Diseño de interfaces: Figma.
+
+![Acceso a Draw.io](docs/images/evidencia-drawio.png)
+
+![Acceso a Figma](docs/images/evidencia-figma.png)
