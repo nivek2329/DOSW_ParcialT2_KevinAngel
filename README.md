@@ -16,6 +16,7 @@
 12. [Punto-1](#12-Punto-1)
 13. [Punto-2](#13-Punto-2)
 14. [Punto-3](#14-Punto-3)
+15. [Punto-4](#15-punto-4)
 
 
 ## 1. Datos del estudiante
@@ -258,3 +259,50 @@ Para proteger el núcleo de nuestra aplicación, usamos traductores (Mappers) ta
 
 
 ![Metamodelo Conceptual NoSQL](docs/images/diagrama_bd_modelo_conceptual.drawio.svg)
+
+
+## 15. Punto-4
+
+### a. ¿Cuál es la diferencia entre autenticación, autorización e integridad? Expliquen dónde y cómo aplicarán cada concepto en la API, con ejemplos del caso.
+
+#### 1. Autenticación ("¿Quién eres?")
+* **El concepto:** Es el paso donde comprobamos que la persona que intenta entrar realmente es quien dice ser.
+* **Cómo lo aplicamos:** Lo hacemos en el login. Recibimos el correo y la contraseña, buscamos al usuario en la base de datos y verificamos si la clave coincide. Si todo está bien, le damos su token JWT para que pueda navegar; si no, le negamos la entrada.
+
+#### 2. Autorización ("¿Qué tienes permitido hacer?")
+* **El concepto:** Una vez que el usuario ya entró, la autorización se encarga de revisar qué permisos tiene y a qué partes de la aplicación puede acceder.
+* **Cómo lo aplicamos:** Lo configuramos en las reglas de seguridad de nuestra API para separar lo que puede hacer un cliente y lo que puede hacer el administrador.
+* **Ejemplo:** Si un cliente normal intenta entrar a la ruta para ver absolutamente todas las reservas del local, el sistema revisa su token, se da cuenta de que no es administrador y le bloquea el paso indicando que no tiene permisos.
+
+#### 3. Integridad ("¿La información está intacta y sin alteraciones?")
+* **El concepto:** Es asegurarnos de que nadie haya modificado o corrompido los datos, ya sea mientras viajan por internet o cuando están guardados.
+* **Cómo lo aplicamos:** 
+  * Por un lado, los tokens que le damos a los usuarios están firmados digitalmente. Si alguien intenta hacer trampa y modificar su token para darse permisos de administrador, el sistema detecta que la firma se rompió y lo rechaza. 
+  * Por otro lado, al guardar una reserva, "congelamos" el precio y el nombre del servicio en ese instante. Así garantizamos la integridad de los datos históricos: si la barbería sube los precios mañana, las reservas viejas no se verán alteradas.
+
+---
+
+### b. Seleccionen dos riesgos del OWASP Top 10 que se pueden encontrar en su API. Para cada uno, describan cómo se vería ese escenario aplicable a la barbería, su mitigación y cómo verificarían que el control funciona.
+
+#### Riesgo 1: BOLA / IDOR (Fallas al proteger los datos de los usuarios)
+* **Escenario en la barbería:** El problema sería que un cliente quiera ver sus turnos y, simplemente cambiando un número de ID en la URL de la petición, termine viendo los turnos, teléfonos y datos personales de otros clientes.
+* **Cómo lo solucionamos:** Para evitar esto, directamente no pedimos el ID del cliente en la petición. Lo que hacemos es extraer su identidad desde el token que ya nos envió. Así, la base de datos solo busca y devuelve las reservas que le pertenecen al dueño de ese token, sin importar qué nos envíe desde el navegador.
+* **Cómo probamos que funciona:** Haremos pruebas simulando ser el "Cliente A" e intentaremos pedirle al sistema los datos del "Cliente B". La prueba será exitosa si confirmamos que el sistema nos ignora y solo nos devuelve la información del Cliente A.
+
+#### Riesgo 2: Inyección NoSQL (Mandar código malicioso en vez de texto)
+* **Escenario en la barbería:** El peligro es que un atacante, en lugar de poner su correo y contraseña en el login, escriba comandos de base de datos para engañar al sistema. Si el sistema se lo cree, podría dejarlo entrar a la cuenta del administrador sin siquiera saber la contraseña.
+* **Cómo lo solucionamos:** Somos muy estrictos con lo que recibimos. Validamos que el correo tenga formato de correo y que solo recibamos texto normal. Además, usamos las herramientas de Spring que limpian y bloquean cualquier carácter extraño antes de buscar en la base de datos.
+* **Cómo probamos que funciona:** Escribiremos una prueba donde enviaremos símbolos raros y comandos falsos al login. Verificaremos que la API rechace la petición inmediatamente con un error de "Bad Request" antes de que siquiera intente buscar en la base de datos.
+
+---
+
+### c. ¿Cuál de los tipos de autenticación es el más adecuado para este MVP? Justifique su respuesta.
+
+Para este proyecto decidimos que lo mejor es usar **Autenticación con Tokens JWT sin estado (Stateless)**. 
+
+Lo justificamos por estas razones principales:
+
+1. **Ahorramos memoria:** Al no usar sesiones tradicionales, el servidor no tiene que gastar memoria recordando quién está conectado. Toda la información de identidad viaja segura dentro del token en cada petición.
+2. **Es mucho más rápido:** Como el token ya trae la información de si el usuario es cliente o administrador, no tenemos que ir a preguntarle a la base de datos en cada clic si la persona tiene permisos o no.
+3. **Nos facilita el crecimiento:** Si la barbería tiene mucho éxito y luego necesitamos poner más servidores para aguantar el tráfico, este sistema es ideal. Cualquier servidor nuevo podrá leer el token de los clientes sin necesidad de sincronizarse con los demás.
+4. **Es seguro:** La firma digital del token nos da la tranquilidad de que nadie puede falsificar identidades ni alterar sus permisos.
