@@ -254,7 +254,7 @@ Para proteger el núcleo de nuestra aplicación, usamos traductores (Mappers) ta
 * **Metamodelo Conceptual NoSQL:** [`diagrama_bd_metamodelo_conceptual.drawio`](docs/uml/diagrama_bd_metamodelo_conceptual.drawio)
 
 
-![Modelo Conceptual de Datos](docs/images/diagrama_bd_modelo_conceptual.png)
+![Modelo Conceptual de Datos](docs/images/diagrama_bd_metamodelo_conceptual.drawio.svg)
 
 
-![Metamodelo Conceptual NoSQL](docs/images/diagrama_bd_metamodelo_conceptual.png)
+![Metamodelo Conceptual NoSQL](docs/images/diagrama_bd_modelo_conceptual.drawio.svg)
