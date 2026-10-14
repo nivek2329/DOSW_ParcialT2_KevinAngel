@@ -13,6 +13,7 @@
 9. [Docker](#9-docker)
 10. [CI/CD](#10-cicd)
 11. [Herramientas de modelado y diseño (evidencias)](#11-herramientas-de-modelado-y-diseño-evidencias)
+12. [Punto-1](#12-Punto-1)
 
 ## 1. Datos del estudiante
 
@@ -158,3 +159,16 @@ El workflow [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml) ejecuta
 ![Acceso a Draw.io](docs/images/evidencia-drawio.png)
 
 ![Acceso a Figma](docs/images/evidencia-figma.png)
+
+## 12. Punto-1
+
+Respuestas preguntas:   
+#### a. ¿Cuál es la diferencia entre una validación de entrada y una validación de negocio? Seleccionen tres reglas del caso, incluyendo al menos una de cada tipo, y justifiquen su clasificación.
+La validación de entrada verifica que los datos enviados por el usuario tengan el formato, tipo y estructura correctos, como campos obligatorios, formatos de fecha o números de teléfono válidos. Se implementa generalmente en la capa Controller/DTO.
+
+La validación de negocio comprueba que la solicitud cumpla las reglas y restricciones propias del sistema, considerando las condiciones del negocio y el estado de la base de datos. Por ejemplo, verificar la disponibilidad del barbero, evitar turnos duplicados o comprobar el límite de reservas permitidas. Se implementa principalmente en la capa de servicios o dominio.
+
+#### b. En "Pedir un turno", ¿cómo debe responder la API si fallan varias condiciones? Expliquen qué error se informa y qué cambios deben evitarse.
+La API debe identificar y comunicar los errores de forma consistente, deteniendo el proceso cuando una validación falla y evitando crear el turno o modificar la base de datos si la solicitud no cumple las condiciones necesarias. Para ello, puede utilizar una cadena de validaciones y un manejador global de excepciones.
+
+La respuesta debe incluir un código HTTP adecuado al tipo de error (por ejemplo, 400 para datos incorrectos o 409 para conflictos), junto con un cuerpo JSON estructurado que contenga el código de error específico, un mensaje explicativo y, cuando corresponda, una marca de tiempo timestamp.
