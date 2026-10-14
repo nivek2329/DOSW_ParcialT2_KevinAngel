@@ -15,6 +15,7 @@
 11. [Herramientas de modelado y diseño (evidencias)](#11-herramientas-de-modelado-y-diseño-evidencias)
 12. [Punto-1](#12-Punto-1)
 13. [Punto-2](#13-Punto-2)
+14. [Punto-3](#14-Punto-3)
 
 
 ## 1. Datos del estudiante
@@ -246,3 +247,14 @@ Para proteger el núcleo de nuestra aplicación, usamos traductores (Mappers) ta
 3. **Regla 3 — Especialidad del Barbero (Errores E02 / E100):**
    - **¿Dónde la pusimos?** En el `BarberoEspecialidadValidator`, pero usando la inteligencia de nuestra propia entidad de dominio `Barbero` (con un método como `cubreTodasEspecialidades()`).
    - **¿Por qué?** Porque es una **regla semántica y pura del dominio**. Estamos cruzando las habilidades físicas del barbero con lo que exige el catálogo (`CORTE`, `BARBA`, `CAPILAR`). Debe vivir en el dominio profundo porque garantiza que nunca le asignemos a un cliente un barbero que no sepa hacer el trabajo que pidió.
+
+## 14. Punto-3
+
+* **Modelo Conceptual de Dominio:** [`diagrama_bd_modelo_conceptual.drawio`](docs/uml/diagrama_bd_modelo_conceptual.drawio)
+* **Metamodelo Conceptual NoSQL:** [`diagrama_bd_metamodelo_conceptual.drawio`](docs/uml/diagrama_bd_metamodelo_conceptual.drawio)
+
+
+![Modelo Conceptual de Datos](docs/images/diagrama_bd_modelo_conceptual.png)
+
+
+![Metamodelo Conceptual NoSQL](docs/images/diagrama_bd_metamodelo_conceptual.png)
