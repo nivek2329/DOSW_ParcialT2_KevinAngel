@@ -163,9 +163,6 @@ El workflow [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml) ejecuta
 
 ![Acceso a Figma](docs/images/evidencia-figma.png)
 
-<<<<<<< HEAD
-
-
 
 =======
 ## 12. Punto-1
@@ -180,7 +177,6 @@ La validación de negocio comprueba que la solicitud cumpla las reglas y restric
 La API debe identificar y comunicar los errores de forma consistente, deteniendo el proceso cuando una validación falla y evitando crear el turno o modificar la base de datos si la solicitud no cumple las condiciones necesarias. Para ello, puede utilizar una cadena de validaciones y un manejador global de excepciones.
 
 La respuesta debe incluir un código HTTP adecuado al tipo de error (por ejemplo, 400 para datos incorrectos o 409 para conflictos), junto con un cuerpo JSON estructurado que contenga el código de error específico, un mensaje explicativo y, cuando corresponda, una marca de tiempo timestamp.
->>>>>>> 91f98028b9b25f6908f6daf8b979d75c189d8300
 
 ## 13. Punto-2
 
