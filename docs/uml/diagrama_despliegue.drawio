@@ -1,0 +1,63 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="despliegue-estudiante" name="Despliegue Bob&#39;s Barber">
+    <mxGraphModel dx="1321" dy="808" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="760" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="client" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontColor=#000000;align=center;" value="&lt;b&gt;Cliente&lt;/b&gt;&lt;br&gt;Navegador / Swagger / Postman" vertex="1">
+          <mxGeometry height="85" width="185" x="35" y="285" as="geometry" />
+        </mxCell>
+        <mxCell id="github" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontColor=#000000;align=center;" value="&lt;b&gt;GitHub Actions&lt;/b&gt;&lt;br&gt;Runner administrado por GitHub&lt;br&gt;ci-cd.yml&lt;br&gt;mvn verify → build → push → deploy" vertex="1">
+          <mxGeometry height="125" width="280" x="220" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="dockerhub" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d9eaf7;strokeColor=#4f81bd;fontSize=12;fontColor=#000000;align=center;" value="&lt;b&gt;Docker Hub&lt;/b&gt;&lt;br&gt;&lt;br&gt;Credenciales en GitHub Secrets&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="115" width="235" x="665" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="azure" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontColor=#000000;align=center;spacing=5;" value="&lt;b&gt;Azure App Service&lt;/b&gt;&lt;br&gt;Linux Web App&lt;br&gt;dosw-parcial-t2-kevin.azurewebsites.net&lt;br&gt;&lt;br&gt;Contenedor: Java 21 · Spring Boot 3.5.16&lt;br&gt;Imagen: dosw-parcial-t2&lt;br&gt;Puerto del contenedor: 8080&lt;br&gt;WEBSITES_PORT=8080" vertex="1">
+          <mxGeometry height="180" width="365" x="610" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="config" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;fontColor=#000000;align=center;" value="&lt;b&gt;Configuración de App Service&lt;/b&gt;&lt;br&gt;MONGODB_URI&lt;br&gt;JWT_SECRET&lt;br&gt;App settings / secretos" vertex="1">
+          <mxGeometry height="115" width="280" x="285" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="mongo" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontColor=#000000;align=center;" value="&lt;b&gt;MongoDB Atlas&lt;/b&gt;&lt;br&gt;Cluster: dosw-cluster&lt;br&gt;Base: dosw_parcial&lt;br&gt;turnos · reservas&lt;br&gt;servicios · barberos · usuarios" vertex="1">
+          <mxGeometry height="155" width="230" x="1110" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-client" edge="1" parent="1" source="client" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#6c8ebf;strokeWidth=1.5;fontSize=11;fontColor=#000000;labelBackgroundColor=#FFFFFF;" target="azure" value="REST / JSON&amp;nbsp;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-push" edge="1" parent="1" source="github" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#9673a6;strokeWidth=1.5;fontSize=11;fontColor=#000000;labelBackgroundColor=#FFFFFF;" target="dockerhub" value="build y push de imagen&amp;nbsp;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-deploy" edge="1" parent="1" source="github" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;dashed=1;strokeColor=#9673a6;strokeWidth=1.5;fontSize=10;fontColor=#000000;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="azure" value="publica referencia de imagen">
+          <mxGeometry relative="1" x="0.4375" as="geometry">
+            <Array as="points">
+              <mxPoint x="565" y="205" />
+              <mxPoint x="565" y="250" />
+              <mxPoint x="650" y="250" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-pull" edge="1" parent="1" source="dockerhub" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#4f81bd;strokeWidth=1.5;fontSize=10;fontColor=#000000;labelBackgroundColor=#FFFFFF;" target="azure" value="">
+          <mxGeometry relative="1" x="-0.0029" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="930" y="245" />
+              <mxPoint x="930" y="290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-config" edge="1" parent="1" source="config" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;dashed=1;strokeColor=#d79b00;strokeWidth=1.5;fontSize=10;fontColor=#000000;labelBackgroundColor=#FFFFFF;" target="azure" value="app settings y secretos">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="570" y="575" />
+              <mxPoint x="570" y="440" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-mongo" edge="1" parent="1" source="azure" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#82b366;strokeWidth=1.5;fontSize=11;fontColor=#000000;labelBackgroundColor=#FFFFFF;" target="mongo" value="Spring Data MongoDB&amp;nbsp;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

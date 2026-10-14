@@ -389,3 +389,108 @@ Aquí probamos la lógica pura y dura súper rápido, aislando la aplicación y 
 4.  **Necesitamos un equipo de calidad integral:** Las pruebas son vitales, pero para asegurar un buen producto también usamos revisiones de código entre nosotros (Code Reviews), herramientas que analizan la salud del código (como SonarQube) y mucha observación y monitoreo una vez que la API está funcionando en la nube.
 
 ## 17. Punto-6
+
+## 1. Especificación del Diagrama de Despliegue
+
+**Archivo fuente editable:** [`diagrama_despliegue.drawio`](diagrama_despliegue.drawio)
+
+### Elementos Involucrados en el Despliegue:
+1. **Nodo Dispositivo Cliente (`«device» Dispositivo Cliente`):**
+   * Representa los equipos de los usuarios finales (PC, Laptop, Smartphone).
+   * **Artefactos:** `Web Browser / Mobile App` (consumidor SPA) y `Swagger UI / Postman` (pruebas de API).
+2. **Nodo Servidor en la Nube (`«device» Microsoft Azure Cloud Server`):**
+   * Región: `Central US`.
+   * **Entorno de Ejecución:** `Azure App Service (Linux Web App)` gestionando un contenedor Docker.
+   * **Artefacto Docker:** Imagen `dosw-parcial-t2:latest` basada en `eclipse-temurin:21-jre-alpine`.
+   * **Artefacto Backend:** Archivo `app.jar` (Spring Boot 3.5.16 sobre Java 21) ejecutando el servidor embebido Tomcat en el puerto `8080`.
+   * **Variables de Entorno inyectadas:** `MONGODB_URI`, `JWT_SECRET`, `PORT=8080`.
+3. **Nodo de Persistencia Administrada (`«device» MongoDB Cloud Cluster`):**
+   * Base de datos como servicio en la nube (MongoDB Atlas DBaaS).
+   * **Base de datos:** `dosw_parcial` con colecciones `usuarios`, `barberos`, `servicios`, `turnos` y `reservas`.
+4. **Mecanismos y Rutas de Comunicación:**
+   * **Cliente ➔ Azure App Service:** Protocolo seguro `HTTPS / TLS 1.3` (Puerto público 443 redirigido al puerto 8080 del contenedor). Cargas útiles en JSON y autenticación vía cabecera `Authorization: Bearer <JWT>`.
+   * **Azure App Service ➔ MongoDB Atlas:** Protocolo de conexión binaria `MongoDB Wire Protocol` sobre `TCP / TLS` en el puerto `27017`, con autenticación criptográfica `SCRAM-SHA-256`.
+
+---
+
+## 2. Respuestas a las Preguntas para la Revisión con el Equipo de DevOps
+
+---
+
+### a. ¿Cuáles son las etapas principales de un pipeline CI/CD y qué propósito tiene cada una?
+
+Basado en la configuración real de GitHub Actions de nuestro repositorio (`.github/workflows/ci-cd.yml`), el pipeline implementa 3 etapas principales secuenciales:
+
+1. **Etapa 1: Build y Pruebas Continuas (Integración Continua - CI):**
+   * **Propósito:** Validar la integridad y calidad del código fuente ante cada cambio (*push/pull request*).
+   * **Acciones en el pipeline:** Descarga el código (`actions/checkout@v4`), configura el runtime de Java 21 Temurin, resuelve dependencias de Maven y ejecuta `mvn verify`. Esto compila el código, corre todas las pruebas unitarias y genera los reportes de cobertura (JaCoCo). Si alguna prueba o regla de compilación falla, el pipeline se aborta inmediatamente.
+2. **Etapa 2: Empaquetamiento y Publicación de Contenedor (Docker Package & Registry):**
+   * **Propósito:** Generar un artefacto inmutable, estándar y portátil que contenga exactamente la versión aprobada en la etapa de pruebas.
+   * **Acciones en el pipeline:** Se autentica en Docker Hub (`docker/login-action@v3`) y ejecuta la construcción multi-stage del `Dockerfile`, generando la imagen optimizada `dosw-parcial-t2:latest` y publicándola en el registro de contenedores de Docker Hub.
+3. **Etapa 3: Despliegue Continuo (Continuous Deployment - CD):**
+   * **Propósito:** Poner la nueva versión en producción en el entorno cloud sin intervención manual ni tiempos de caída prolongados (*Zero Downtime Deployment*).
+   * **Acciones en el pipeline:** Se autentica en Azure mediante Service Principal (`azure/login@v2`) y notifica a Azure App Service (`azure/webapps-deploy@v3`) para que descargue la nueva imagen de Docker Hub y reinicie el contenedor en el App Service de producción.
+
+---
+
+### b. ¿Qué sucede si una prueba falla? ¿Debe permitirse el despliegue? Justifique.
+
+* **Qué sucede técnicamente:**  
+  El runner de GitHub Actions detecta el código de salida distinto de cero (`exit code != 0`) en el paso `mvn verify`. Inmediatamente el job `test` se marca en estado **Fallo (Rojo)**. Debido a que los jobs posteriores tienen la directiva `needs: test` y `needs: docker`, el pipeline detiene su ejecución en seco (*Fail-Fast Pipeline*). No se construye la imagen Docker y no se ejecuta el despliegue a Azure.
+
+* **¿Debe permitirse el despliegue?**  
+  **Rotundamente NO.**
+
+* **Justificación técnica:**
+  1. **Principio de Calidad en la Fuente (*Quality Gates*):** Permitir el despliegue de una versión que falla pruebas significa introducir regresiones conocidas y defectos funcionales directamente a los usuarios en producción (por ejemplo, permitir que un cliente reserve en una franja ya llena `E01`, o que un barbero atienda servicios para los cuales no tiene especialidad `E02`).
+  2. **Protección de la Integridad de la Base de Datos:** Si las pruebas de validación fallan, el código desplegado podría persistir datos inconsistentes o corruptos en MongoDB Atlas, lo cual requeriría costosas tareas manuales de limpieza y causaría pérdida de confianza del cliente.
+  3. **Costo de Reparación:** Corregir un defecto detectado en la fase de CI toma minutos en la máquina del desarrollador; corregirlo después de desplegado en producción implica incidentes, caída del servicio, generación de parches de emergencia (hotfixes) e impacto comercial en la barbería.
+
+---
+
+### c. ¿Para qué sirven los logs y qué registrarían para investigar una reserva fallida o un error de autenticación?
+
+* **Para qué sirven los logs:**
+  Los logs son la bitácora cronológica estructurada de eventos del sistema. Permiten auditar la actividad, monitorear el rendimiento en tiempo real, entender el flujo de ejecución y realizar análisis forense (*root-cause analysis*) cuando se presentan anomalías o caídas sin necesidad de depurar interactivamente en producción.
+
+* **Qué registraríamos para investigar una reserva fallida:**
+  1. `Timestamp` exacto en formato UTC/ISO-8601.
+  2. `Trace ID` / `Correlation ID` de la petición HTTP para rastrear todo el ciclo de vida de la transacción.
+  3. Identificador del cliente autenticado extraído del token JWT (correo del cliente).
+  4. Datos de la solicitud: fecha solicitada, hora de inicio (`10:00`), código de servicios (`[SER-001, SER-004]`) y barbero solicitado.
+  5. Causa raíz del rechazo: código de negocio exacto (`E01 - Franja llena`, `E02 - Especialidad incompatible`, `E100 - Barbero no disponible`) y estado de la base de datos en ese instante (ej: *"Franja 2026-10-20 10:00 cuenta con 3 reservas activas. Rechazando cuarta reserva"*).
+  6. Código HTTP retornado al cliente (`409 Conflict`, `422 Unprocessable Entity`).
+
+* **Qué registraríamos para investigar un error de autenticación:**
+  1. `Timestamp` y dirección IP de origen de la solicitud.
+  2. Correo electrónico utilizado en el intento de inicio de sesión (`admin@barber.com` o `cliente@gmail.com`).
+  3. Motivo técnico del fallo a nivel interno (ej: *"Usuario no encontrado en MongoDB"* o *"Hash de contraseña no coincide"*).
+  4. Tipo de error de seguridad: si fue token vencido, firma HMAC inválida o claim de rol ausente.
+  5. Código HTTP retornado (`401 Unauthorized`).
+
+---
+
+### d. Presente ejemplos de información útil para rastrear la operación y de datos que NO deben registrarse.
+
+#### 1. Información Útil y Recomendada para Registrar:
+* **Identificadores de Rastreo:** `CorrelationId` / `RequestId` autogenerado por cada petición HTTP para correlacionar logs entre múltiples componentes.
+* **Metadatos de la Petición:** Método HTTP (`POST`, `GET`), ruta del endpoint (`/api/v1/reservas`), código de respuesta HTTP (`201`, `400`, `409`) y tiempo de respuesta en milisegundos (`latency: 45ms`).
+* **Identidad Operativa:** Identificador o correo del usuario autenticado (`userId: "670c5e1f...", email: "carlos@gmail.com"`).
+* **Eventos de Ciclo de Vida del Negocio:** *"Turno ID 670c5e... reservado con éxito por cliente carlos@gmail.com"*, *"Servicio recalculado: Total $45.000"*.
+
+#### 2. Datos que NUNCA deben registrarse en los Logs (Violaciones de Seguridad y Privacidad):
+* **Contraseñas en Texto Claro o Hashes:** Nunca loguear el campo `password` enviado en el login (riesgo crítico de fuga de credenciales en repositorios de logs).
+* **Secretos Criptográficos y Claves del Sistema:** Clave secreta del JWT (`JWT_SECRET`), connection strings con contraseñas de MongoDB (`mongodb+srv://user:password@cluster...`) o credenciales de Azure.
+* **Tokens de Acceso Completos:** El token JWT completo no debe imprimirse en logs (si un operador tiene acceso a los logs, podría suplantar la sesión del cliente).
+* **Información Personal Sensible (PII / Datos Financieros):** Números de tarjetas de crédito, respuestas a preguntas de seguridad o datos médicos. En el caso del teléfono del cliente, si se loguea debe aplicarse enmascaramiento parcial (ej: `310****567`).
+
+---
+
+### e. ¿Qué diferencia debe existir entre el detalle del log interno y el mensaje que recibe el cliente?
+
+| Criterio | Log Interno del Sistema (Backend / CloudWatch / Azure Log Stream) | Mensaje de Respuesta al Cliente (Cuerpo HTTP JSON) |
+|---|---|---|
+| **Audiencia** | Desarrolladores, equipo de DevOps, SRE y administradores de seguridad. | Usuario final de la barbería (cliente o barbero) y frontend/app móvil. |
+| **Nivel de Detalle** | **Extremadamente detallado y técnico:** Incluye trazas de error (*Stack Traces*), nombres de clases Java (`ReservaServiceImpl.java:85`), queries ejecutadas en MongoDB, Correlation IDs, memoria y tiempos de CPU. | **Amigable, conciso y funcional:** Explica claramente el motivo del rechazo en lenguaje comprensible sin detalles técnicos de infraestructura (ej: *"No hay disponibilidad para esta hora. Por favor elija otro horario"*). |
+| **Seguridad y Prevención de Fugas (*Information Disclosure*)** | Acceso restringido con autenticación y auditoría; contiene la causa raíz para depurar. | **Ofuscado y blindado:** Nunca debe revelar nombres de tablas, versiones de librerías, excepciones internas de Java (`NullPointerException`, `MongoSocketException`) ni detalles de la arquitectura interna para evitar ataques de reconocimiento (OWASP A05). |
+| **Ejemplo Comparativo ante fallo de DB:** | `ERROR [ReservaService] [req-89a1] MongoTimeoutException: Timed out after 30000 ms while waiting to connect to [mongo-atlas.net:27017]. StackTrace: ...` | `HTTP 500 Internal Server Error` ➔ `{"codigo": "ERR-500", "mensaje": "Ocurrió un error inesperado al procesar su solicitud. Intente nuevamente más tarde.", "timestamp": "2026-10-13T22:30:00"}` |
