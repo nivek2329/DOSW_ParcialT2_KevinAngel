@@ -17,7 +17,8 @@
 13. [Punto-2](#13-Punto-2)
 14. [Punto-3](#14-Punto-3)
 15. [Punto-4](#15-punto-4)
-
+16. [Punto-5](#16-punto-5)
+17. [Punto-6](#17-punto-6)
 
 ## 1. Datos del estudiante
 
@@ -306,3 +307,85 @@ Lo justificamos por estas razones principales:
 2. **Es mucho más rápido:** Como el token ya trae la información de si el usuario es cliente o administrador, no tenemos que ir a preguntarle a la base de datos en cada clic si la persona tiene permisos o no.
 3. **Nos facilita el crecimiento:** Si la barbería tiene mucho éxito y luego necesitamos poner más servidores para aguantar el tráfico, este sistema es ideal. Cualquier servidor nuevo podrá leer el token de los clientes sin necesidad de sincronizarse con los demás.
 4. **Es seguro:** La firma digital del token nos da la tranquilidad de que nadie puede falsificar identidades ni alterar sus permisos.
+
+## 16. Punto-5
+
+**Proyecto:** Bob's Barber — API REST de Gestión de Turnos  
+**Fase:** Fase de Diseño (Parte Teórica)  
+**Autores:** Kevin Andrey Angel Acevedo, Santiago Andres Garcia  
+**Profesor:** Andres Martin Cantor  
+**Materia:** DOSW — Parcial Práctico T2  
+
+---
+
+## Estrategia de Pruebas: Caso de Uso "Pedir un Turno"
+
+### 1. ¿Qué escenarios vamos a probar? (Nuestra matriz de pruebas)
+
+Para asegurarnos de que la creación de reservas funciona perfecto, definimos qué pasa en el caso ideal y qué debe pasar cuando las cosas salen mal:
+
+| Escenario | ¿Qué intentamos hacer? | ¿Qué debe responder el sistema? | 
+| ----- | ----- | ----- | 
+| **Todo perfecto (Happy Path)** | Pedimos un turno con datos válidos, hay espacio en la hora elegida y el barbero sabe hacer el corte. | **Todo OK (201):** Nos confirma la reserva y marca el turno como ocupado. | 
+| **El local está lleno** | Intentamos meter una cuarta reserva en una hora que ya tiene 3 reservas ocupadas. | **Error (409):** Nos rechaza inmediatamente diciendo que no hay cupo. | 
+| **Barbero sin la especialidad** | El barbero está libre, pero le pedimos un tinte y él solo hace cortes. | **Error (422):** Nos avisa que el barbero no ofrece ese servicio. | 
+| **Datos del cliente incompletos** | Mandamos la petición pero dejamos el nombre vacío o ponemos un correo que no es de Gmail. | **Error (400):** Nos pide que corrijamos nuestros datos antes de seguir. | 
+| **Servicio inventado** | Pedimos un servicio con un código que no existe en el catálogo de la barbería. | **Error (404):** Nos avisa que ese servicio no se ofrece. | 
+| **Un admin intentando reservar** | Usamos un token de administrador para intentar sacar una cita como cliente. | **Error (403):** El sistema nos bloquea porque los admins no sacan citas propias. | 
+
+### 2. ¿Cómo programamos esto? Usando TDD (Test-Driven Development)
+
+Para estar seguros de que el código hace lo que debe, usamos el ciclo de TDD (Rojo, Verde, Refactorizar) en cada validación:
+
+1. **Paso Rojo (Empezar fallando):** Antes de programar la regla (por ejemplo, "que no pasen de 3 reservas"), escribimos una prueba automática que intente romper esa regla. Al correrla, la prueba falla porque nuestro código aún no sabe defenderse.
+2. **Paso Verde (Hacer que pase):** Escribimos el código mínimo y necesario en nuestro servidor para contar las reservas y lanzar un error si ya hay 3. Volvemos a correr la prueba y ahora pasa con éxito.
+3. **Paso Refactor (Limpiar la casa):** Una vez que funciona, acomodamos el código para que quede ordenado, fácil de leer y bien estructurado en nuestra Cadena de Responsabilidad, verificando que ninguna prueba anterior se haya roto.
+
+### 3. ¿Cómo demostramos que las reglas se evalúan en el orden correcto?
+
+Tenemos una cadena de validaciones (1. Cupo ➔ 2. Especialidad ➔ 3. Datos del cliente). Para comprobar que el sistema no se salta el orden, usamos la **Estrategia del Doble Fallo**.
+
+**¿En qué consiste?**  
+Le mandamos al sistema una petición que tiene *dos errores a propósito*.
+
+* **Ejemplo:** Pedimos un turno en una hora que ya está llena (Fallo 1) y además mandamos un número de teléfono incompleto (Fallo 3).
+* **Nuestra prueba:** El sistema **está obligado** a quejarse primero del cupo (Error 409). Si el sistema nos llega a responder "el teléfono está mal", significa que evaluó al cliente antes de mirar si había espacio, lo cual rompería nuestro diseño. Con esto demostramos que el sistema corta el proceso apenas encuentra el primer error lógico en el orden establecido.
+
+### 4. ¿Cómo aseguramos que no se guarde "basura" en la base de datos si algo sale mal?
+
+Si un cliente intenta hacer una reserva y el proceso falla a la mitad, tenemos que garantizar que no se haya guardado una reserva a medias ni se haya bloqueado un turno por accidente. Lo verificamos de dos formas:
+
+**A. Revisando la base de datos (Pruebas de Integración):**
+1. Antes de la prueba, contamos cuántas reservas hay en total en MongoDB (ej. hay 10).
+2. Mandamos una petición mala (ej. correo inválido) y el sistema nos da error.
+3. Volvemos a contar. Si sigue habiendo exactamente 10 reservas y el turno sigue estando "DISPONIBLE", sabemos que el sistema es seguro y no guardó datos fantasma.
+
+**B. Espiando el código con Mockito (Pruebas Unitarias):**  
+Usamos herramientas de pruebas para "espiar" a nuestro sistema por dentro. Le decimos a Mockito que vigile la función que guarda datos en la base de datos. Si la petición del usuario tenía un error, hacemos una aserción estricta para confirmar que la función de `guardar()` **literalmente nunca fue llamada** durante ese intento.
+
+---
+
+## 5. Preguntas para la Revisión con el Equipo de Calidad
+
+### a. ¿Cómo nuestras pruebas demuestran que cumplimos las reglas del negocio y qué probamos unitariamente?
+
+**1. Las pruebas son nuestra "documentación viva":**  
+En lugar de tener las reglas del negocio escritas en un papel que nadie lee, las convertimos en código ejecutable. Si un compañero cambia algo y por error permite que entren 4 personas en una misma hora, la prueba se pondrá en rojo al instante y bloqueará la subida de ese código defectuoso. Además, probamos "al límite": comprobamos que la tercera reserva pase perfectamente, pero que la cuarta explote como debe ser.
+
+**2. Lo que probamos con Pruebas Unitarias:**  
+Aquí probamos la lógica pura y dura súper rápido, aislando la aplicación y fingiendo la base de datos con *mocks*. Específicamente verificamos:
+*   **Que cada validador haga su trabajo:** Le mandamos datos malos a cada eslabón (teléfonos con letras, correos de Yahoo, códigos de servicio inventados) para asegurar que cada uno lance su error específico.
+*   **Los horarios y reglas de negocio:** Probamos que Miguel solo atienda de lunes a jueves y que el sistema rechace citas fuera de su horario.
+*   **Las matemáticas:** Verificamos que la función que calcula el total a pagar sume correctamente los precios de todos los servicios solicitados.
+*   **La seguridad interna:** Comprobamos que, ante cualquier mínimo error, la orden de "guardar en base de datos" nunca se ejecute.
+
+### b. ¿Las pruebas por sí solas garantizan que no hay errores?
+
+**No, definitivamente no.** Y lo justificamos por varias razones:
+
+1.  **El principio de Dijkstra:** Como decía Edsger W. Dijkstra, uno de los pioneros del software: *"Las pruebas sirven para demostrar que hay errores, pero jamás pueden demostrar que no los hay"*. Pasar todas las pruebas solo significa que el sistema funciona para esos casos específicos que imaginamos.
+2.  **Combinaciones infinitas:** Es humanamente imposible probar cada escenario. No podemos simular qué pasa si dos clientes dan clic en "Reservar" exactamente en el mismo milisegundo, o qué ocurre si el internet de Azure parpadea a mitad de la transacción.
+3.  **El factor humano:** Si nosotros entendimos mal un requerimiento del cliente, vamos a escribir una prueba automatizada que valide ese error. La prueba pasará en verde (falso positivo), pero el error seguirá estando ahí.
+4.  **Necesitamos un equipo de calidad integral:** Las pruebas son vitales, pero para asegurar un buen producto también usamos revisiones de código entre nosotros (Code Reviews), herramientas que analizan la salud del código (como SonarQube) y mucha observación y monitoreo una vez que la API está funcionando en la nube.
+
+## 17. Punto-6
