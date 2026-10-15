@@ -23,7 +23,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +51,6 @@ public class ReservaServiceImpl implements ReservaService {
     }
 
     @Override
-    @Transactional
     public Reserva pedirTurno(ReservaRequestDTO request, String authenticatedEmail) {
         log.info("Iniciando solicitud de reserva para cliente {} en fecha {} {}", authenticatedEmail, request.getFecha(), request.getHoraInicio());
 

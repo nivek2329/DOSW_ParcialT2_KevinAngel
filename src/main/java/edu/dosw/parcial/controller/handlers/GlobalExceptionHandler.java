@@ -51,8 +51,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGenericException(Exception ex) {
-        log.error("Error no controlado en el servidor", ex);
-        ErrorResponseDTO error = new ErrorResponseDTO("E500-INTERNAL-ERROR", "Ocurrio un error inesperado al procesar la solicitud", LocalDateTime.now());
+        log.error("Error no controlado en el servidor: {}", ex.getMessage(), ex);
+        ErrorResponseDTO error = new ErrorResponseDTO("E500-INTERNAL-ERROR", ex.getMessage() != null ? ex.getMessage() : "Ocurrio un error inesperado al procesar la solicitud", LocalDateTime.now());
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -17,10 +17,12 @@ public class ReservaRequestDTO {
 
     @NotNull(message = "La fecha es obligatoria")
     @JsonFormat(pattern = "yyyy-MM-dd")
+    @io.swagger.v3.oas.annotations.media.Schema(type = "string", example = "2026-10-25")
     private LocalDate fecha;
 
     @NotNull(message = "La hora de inicio es obligatoria")
     @JsonFormat(pattern = "HH:mm")
+    @io.swagger.v3.oas.annotations.media.Schema(type = "string", example = "10:00")
     private LocalTime horaInicio;
 
     @NotEmpty(message = "Debe solicitar al menos un servicio")
