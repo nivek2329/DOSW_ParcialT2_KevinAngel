@@ -13,10 +13,15 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/reservas")
@@ -46,5 +51,20 @@ public class ReservaController {
         Reserva reserva = reservaService.pedirTurno(request, authenticatedEmail);
         ReservaResponseDTO response = reservaMapper.toResponseDTO(reserva);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/mis-reservas")
+    @Operation(summary = "Consultar mis reservas (Solo CLIENTE)", description = "Retorna las reservas del cliente autenticado extraido del token o contexto")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Consulta exitosa de reservas del cliente")
+    })
+    public ResponseEntity<List<ReservaResponseDTO>> consultarMisReservas(Principal principal, Authentication authentication) {
+        String email = principal != null ? principal.getName() : (authentication != null ? authentication.getName() : "");
+        List<Reserva> reservas = reservaService.consultarMisReservas(email);
+        List<ReservaResponseDTO> response = new ArrayList<>();
+        for (Reserva r : reservas) {
+            response.add(reservaMapper.toResponseDTO(r));
+        }
+        return ResponseEntity.ok(response);
     }
 }

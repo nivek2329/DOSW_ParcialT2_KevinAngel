@@ -24,6 +24,7 @@
 
 18. [Crear-Turno](#18-Crear-Turno)
 19. [Pedir-Turno](#19-Pedir-Turno)
+20. [consultar-mis-reservas](#20-consultar-mis-reservas)
 
 ## 1. Datos del estudiante
 
@@ -73,10 +74,6 @@ src/test/java/edu/dosw/parcial/             Pruebas unitarias
 src/test/resources/                         Recursos de pruebas
 ```
 
-El Mapper IN convierte DTOs en objetos de dominio y viceversa. El Mapper OUT convierte entre dominio y documentos MongoDB. Los controladores no dependen de documentos de persistencia.
-
-
-![Diagrama UML de componentes general](diagrama_componentes_general.svg)
 
 ## 5. Tecnologías y dependencias
 
@@ -535,3 +532,15 @@ Finalmente, para que los clientes puedan usar todo esto, creamos el `ReservaCont
   * Se desarrolló el `ReservaController` habilitando el endpoint `POST /api/v1/reservas`.
 * **Pruebas unitarias:** 
   * Se incorporaron las pruebas correspondientes en `ReservaServiceTest`.
+
+## 20. consultar-mis-reservas
+
+### Descripción del alcance de este paso: Consulta de Reservas del Cliente
+
+En este breve pero importante paso, nos enfocamos en darle a los clientes la capacidad de ver su propio historial de turnos de una forma muy personalizada y cómoda.
+
+Para lograrlo, empezamos trabajando desde abajo hacia arriba. En la capa de datos, fuimos a nuestro `ReservaRepository` y le agregamos una consulta a la medida: el método `findByClienteEmailOrderByFechaCreacionDesc`. Gracias a la magia de Spring Data, con este nombre tan descriptivo le estamos diciendo a MongoDB que filtre exactamente las reservas que le pertenecen a ese correo y, además, que nos entregue la lista ya ordenada cronológicamente de la más reciente a la más antigua.
+
+Una vez tuvimos los datos, subimos a la capa de negocio. En nuestro `ReservaService` (junto con su clase `ReservaServiceImpl`), creamos el método `consultarMisReservas(clienteEmail)`. Este método actúa como puente: recibe el correo del cliente, va a buscar las reservas al repositorio y se encarga de mapearlas (transformarlas) en un formato limpio para que el usuario solo vea la información que le interesa.
+
+Finalmente, para que los clientes puedan acceder a toda esta lógica desde su pantalla, conectamos los cables en la capa web. Fuimos al `ReservaController` y abrimos una nueva ruta: el endpoint `GET /api/v1/reservas/mis-reservas`. A través de esta ruta, el cliente hace la petición y nuestro sistema le devuelve todo su historial de citas al instante..
