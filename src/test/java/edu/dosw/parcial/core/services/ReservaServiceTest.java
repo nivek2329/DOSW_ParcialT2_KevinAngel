@@ -221,7 +221,9 @@ class ReservaServiceTest {
         verify(mongoTemplate).updateFirst(any(Query.class), any(Update.class), eq(FranjaQuotaDocument.class));
 
         Update capturedUpdate = updateCaptor.getValue();
-        assertEquals(EstadoTurno.DISPONIBLE, capturedUpdate.getUpdateObject().get("estado"));
+        org.bson.Document setDoc = (org.bson.Document) capturedUpdate.getUpdateObject().get("$set");
+        assertNotNull(setDoc);
+        assertEquals(EstadoTurno.DISPONIBLE.name(), setDoc.get("estado").toString());
     }
 
     @Test
