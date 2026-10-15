@@ -144,4 +144,15 @@ public class ReservaServiceImpl implements ReservaService {
         );
     }
 
+    @Override
+    public List<Reserva> consultarMisReservas(String authenticatedEmail) {
+        log.info("Consultando reservas para cliente autenticado: {}", authenticatedEmail);
+        List<ReservaDocument> docs = reservaRepository.findByClienteEmailOrderByFechaDescHoraInicioDesc(authenticatedEmail);
+        List<Reserva> result = new ArrayList<>();
+        for (ReservaDocument doc : docs) {
+            result.add(reservaEntityMapper.toDomain(doc));
+        }
+        return result;
+    }
+
     }

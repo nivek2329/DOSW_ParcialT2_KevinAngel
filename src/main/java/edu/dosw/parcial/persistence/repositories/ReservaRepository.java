@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface ReservaRepository extends MongoRepository<ReservaDocument, String> {
     List<ReservaDocument> findByFranjaId(String franjaId);
+    List<ReservaDocument> findByClienteEmailOrderByFechaCreacionDesc(String clienteEmail);
 }
