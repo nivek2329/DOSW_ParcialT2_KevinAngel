@@ -26,6 +26,7 @@
 19. [Pedir-Turno](#19-Pedir-Turno)
 20. [consultar-mis-reservas](#20-consultar-mis-reservas)
 21. [consultar-todas-las-reservas](#20-consultar-todas-las-reservas)
+22. [iniciar-sesion](#22-iniciar-sesion)
 
 ## 1. Datos del estudiante
 
@@ -554,3 +555,25 @@ Finalmente, para que los clientes puedan acceder a toda esta lógica desde su pa
   * Se implementó el método `consultarTodasLasReservas()`, encargado de retornar el listado completo de las reservas registradas en la barbería.
 * **Capa REST (`ReservaController`):** 
   * Se incorporó el endpoint `GET /api/v1/reservas` para exponer la información administrativa.
+
+## 22. iniciar-sesion
+
+### Descripción del alcance de este paso: Seguridad, Autenticación y Autorización
+
+Para cerrar, en este último paso nos dedicamos a blindar la aplicación. Implementamos toda la infraestructura de seguridad para asegurarnos de que solo entren las personas correctas y vean únicamente lo que les corresponde.
+
+Para empezar, armamos la base de cómo el sistema reconoce a la gente. Creamos la entidad `Usuario`, definimos claramente quién es quién usando `Rol` (`ADMIN` y `CLIENTE`), y armamos su almacenamiento en MongoDB con `UsuarioDocument` y `UsuarioRepository`. Para manejar los datos que nos envía el usuario al iniciar sesión y lo que le respondemos, creamos los objetos `LoginRequestDTO` y `AuthResponseDTO`. Toda la lógica de verificar quién entra la metimos en nuestro `AuthService` (junto a su implementación `AuthServiceImpl`).
+
+**La magia de Spring Security y JWT**
+Para manejar la seguridad pesada, integramos Spring Security 6 configurando todo en nuestro `SecurityConfig`. Por supuesto, guardar contraseñas en texto plano era impensable, así que aplicamos encriptación robusta con BCrypt desde el `PasswordEncoderConfig`. 
+
+Como nuestra arquitectura es sin estado (stateless), la llave de entrada es un token. Para eso, fabricamos nuestro propio `JwtTokenProvider` que genera y lee los tokens, un `JwtAuthenticationFilter` que actúa como guardia en la puerta revisando cada petición que llega, y conectamos el reconocimiento de usuarios con el `CustomUserDetailsService`.
+
+Para que los usuarios puedan reclamar su token, habilitamos el `AuthController` exponiendo la ruta `POST /api/v1/auth/login`. Y como queríamos poder probar todo esto cómodamente desde Swagger, actualizamos el `OpenApiConfig` para que la documentación acepte nuestro esquema *Bearer Auth*.
+
+**Protegiendo lo que ya habíamos construido (RBAC)**
+El paso final fue regresar a los controladores de los pasos anteriores para ponerles candado según el rol del usuario:
+* Al `TurnoController` lo restringimos totalmente para que solo el `ADMIN` pueda publicar horarios (etiquetándolo en la documentación con `@SecurityRequirement(name = "bearerAuth")`).
+* En el `ReservaController` fuimos más cuidadosos con los permisos: configuramos que el `CLIENTE` solo tenga poder para crear citas y ver su propio historial (`POST /api/v1/reservas` y `GET /api/v1/reservas/mis-reservas`). Sin embargo, el `ADMIN` es el único que tiene permiso para consultar el listado global del negocio (`GET /api/v1/reservas`).
+
+Finalmente, si algún usuario intenta pasarse de listo y acceder a una función para la cual no tiene permisos, configuramos nuestro `GlobalExceptionHandler`. Ahora, el sistema atrapa automáticamente esa `AccessDeniedException` y lo rebota de forma controlada con un error HTTP 403 Forbidden.

@@ -8,6 +8,7 @@ import edu.dosw.parcial.core.services.ReservaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/reservas")
 @Tag(name = "Reservas", description = "Endpoints para solicitud y consulta de reservas de turnos")
+@SecurityRequirement(name = "bearerAuth")
 public class ReservaController {
 
     private final ReservaService reservaService;
@@ -41,26 +43,30 @@ public class ReservaController {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Reserva creada exitosamente"),
             @ApiResponse(responseCode = "400", description = "Datos de cliente invalidos (nombre, telefono o correo @gmail.com)"),
+            @ApiResponse(responseCode = "401", description = "No autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado (requiere rol CLIENTE)"),
             @ApiResponse(responseCode = "404", description = "Servicio o barbero solicitado no encontrado en el sistema"),
             @ApiResponse(responseCode = "409", description = "Franja horaria llena (limite de 3 clientes superado) o turno no disponible"),
             @ApiResponse(responseCode = "422", description = "Especialidad incompatible o barbero no disponible en horario solicitado")
     })
     public ResponseEntity<ReservaResponseDTO> pedirTurno(@Valid @RequestBody ReservaRequestDTO request,
                                                          Authentication authentication) {
-        String authenticatedEmail = authentication != null ? authentication.getName() : request.getCliente().getEmail();
+        String authenticatedEmail = authentication.getName();
         Reserva reserva = reservaService.pedirTurno(request, authenticatedEmail);
         ReservaResponseDTO response = reservaMapper.toResponseDTO(reserva);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping("/mis-reservas")
-    @Operation(summary = "Consultar mis reservas (Solo CLIENTE)", description = "Retorna las reservas del cliente autenticado extraido del token o contexto")
+    @Operation(summary = "Consultar mis reservas (Solo CLIENTE)", description = "Retorna las reservas del cliente autenticado extraido del token JWT")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Consulta exitosa de reservas del cliente")
+            @ApiResponse(responseCode = "200", description = "Consulta exitosa de reservas del cliente"),
+            @ApiResponse(responseCode = "401", description = "No autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado")
     })
-    public ResponseEntity<List<ReservaResponseDTO>> consultarMisReservas(Principal principal, Authentication authentication) {
-        String email = principal != null ? principal.getName() : (authentication != null ? authentication.getName() : "");
-        List<Reserva> reservas = reservaService.consultarMisReservas(email);
+    public ResponseEntity<List<ReservaResponseDTO>> consultarMisReservas(Principal principal) {
+        String authenticatedEmail = principal.getName();
+        List<Reserva> reservas = reservaService.consultarMisReservas(authenticatedEmail);
         List<ReservaResponseDTO> response = new ArrayList<>();
         for (Reserva r : reservas) {
             response.add(reservaMapper.toResponseDTO(r));
@@ -69,9 +75,11 @@ public class ReservaController {
     }
 
     @GetMapping
-    @Operation(summary = "Consultar todas las reservas (Solo ADMIN)", description = "Retorna todas las reservas registradas en el sistema")
+    @Operation(summary = "Consultar todas las reservas (Solo ADMIN)", description = "Retorna todas las reservas del sistema ordenadas descendentemente")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Consulta exitosa de todas las reservas")
+            @ApiResponse(responseCode = "200", description = "Consulta exitosa de todas las reservas"),
+            @ApiResponse(responseCode = "401", description = "No autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado (requiere rol ADMIN)")
     })
     public ResponseEntity<List<ReservaResponseDTO>> consultarTodasLasReservas() {
         List<Reserva> reservas = reservaService.consultarTodasLasReservas();
