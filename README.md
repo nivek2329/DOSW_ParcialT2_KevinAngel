@@ -23,12 +23,13 @@
 ## Fase de Implementacion
 
 18. [Crear-Turno](#18-Crear-Turno)
+19. [Pedir-Turno](#19-Pedir-Turno)
 
 ## 1. Datos del estudiante
 
-- **Nombre completo:** Kevin Andrey Angel Acevedo,santiago andres garcia
+- **Nombre completo:** Kevin Andrey Angel Acevedo, Santiago Andres Garcia Almario
 - **Grupo:** 1
-- **Profesor:** andres martin cantor
+- **Profesor:** Andres Martin Cantor
 
 ## 2. Descripción del proyecto
 
@@ -168,11 +169,8 @@ El workflow [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml) ejecuta
 
 ![Acceso a Figma](docs/images/evidencia-figma.png)
 
-<<<<<<< HEAD
 
 
-
-=======
 ## 12. Punto-1
 
 Respuestas preguntas:   
@@ -185,9 +183,12 @@ La validación de negocio comprueba que la solicitud cumpla las reglas y restric
 La API debe identificar y comunicar los errores de forma consistente, deteniendo el proceso cuando una validación falla y evitando crear el turno o modificar la base de datos si la solicitud no cumple las condiciones necesarias. Para ello, puede utilizar una cadena de validaciones y un manejador global de excepciones.
 
 La respuesta debe incluir un código HTTP adecuado al tipo de error (por ejemplo, 400 para datos incorrectos o 409 para conflictos), junto con un cuerpo JSON estructurado que contenga el código de error específico, un mensaje explicativo y, cuando corresponda, una marca de tiempo timestamp.
->>>>>>> 91f98028b9b25f6908f6daf8b979d75c189d8300
+
 
 ## 13. Punto-2
+![diagrama_componentes_general.drawio.svg](docs/images/diagrama_componentes_general.drawio.svg)
+![diagrama-componentes-especifico.drawio.svg](docs/images/diagrama-componentes-especifico.drawio.svg)
+![diagrama_clases_modelos_dominio.drawio.svg](docs/images/diagrama_clases_modelos_dominio.drawio.svg)
 
 ### a. ¿Qué problemas aparecen cuando no se separan correctamente las capas? Presenten un ejemplo del caso y expliquen cómo distribuyen sus responsabilidades.
 
@@ -314,14 +315,6 @@ Lo justificamos por estas razones principales:
 
 ## 16. Punto-5
 
-**Proyecto:** Bob's Barber — API REST de Gestión de Turnos  
-**Fase:** Fase de Diseño (Parte Teórica)  
-**Autores:** Kevin Andrey Angel Acevedo, Santiago Andres Garcia  
-**Profesor:** Andres Martin Cantor  
-**Materia:** DOSW — Parcial Práctico T2  
-
----
-
 ## Estrategia de Pruebas: Caso de Uso "Pedir un Turno"
 
 ### 1. ¿Qué escenarios vamos a probar? (Nuestra matriz de pruebas)
@@ -396,7 +389,7 @@ Aquí probamos la lógica pura y dura súper rápido, aislando la aplicación y 
 
 ## 1. Especificación del Diagrama de Despliegue
 
-**Archivo fuente editable:** [`diagrama_despliegue.drawio`](diagrama_despliegue.drawio)
+![diagrama_despliegue.drawio.svg](docs/images/diagrama_despliegue.drawio.svg)
 
 ### Elementos Involucrados en el Despliegue:
 1. **Nodo Dispositivo Cliente (`«device» Dispositivo Cliente`):**
@@ -521,3 +514,24 @@ Aquí está el corazón de la reserva. Armamos un filtro de 4 pasos súper estri
 A nivel de base de datos no podíamos correr riesgos de guardar reservas a medias. Configuramos el `MongoTransactionManager` en nuestro `MongoConfig` para habilitar transacciones reales. Para actualizar los cupos sin pisarnos, usamos una operación súper segura (atómica) con `mongoTemplate.findAndModify`. Si por alguna razón explota algo al momento de guardar la reserva final, el sistema hace una reversión automática (rollback) y deja los cupos tal como estaban.
 
 Finalmente, para que los clientes puedan usar todo esto, creamos el `ReservaController` abriendo la ruta `POST /api/v1/reservas`. Y claro, nos aseguramos de que toda esta lógica funcione a la perfección con nuestras pruebas unitarias en `ReservaServiceTest`.
+
+## 19. Pedir-Turno
+
+### Descripción del alcance de este paso
+* **Modificaciones de soporte al Paso 1:**
+  * Se ampliaron los métodos en `TurnoRepository` (`findByFechaAndHoraInicioAndEstado`, `findByFechaAndHoraInicio`) para consultar turnos disponibles por fecha y hora.
+  * Se configuró el `GlobalExceptionHandler` para capturar la excepción `DuplicateKeyException`, mapeando conflictos concurrentes a una respuesta HTTP 409 con el código de error `E01`.
+* **Nuevos modelos y entidades:** 
+  * Se integraron `Reserva`, `EstadoReserva`, `Servicio` y `CuotaFranjaDocument`.
+* **Cadena de Responsabilidad (Validaciones en orden estricto con detención *fail-fast*):**
+  1. `FranjaDisponibilidadValidator`: Valida el horario y la disponibilidad preliminar.
+  2. `BarberoDisponibleValidator`: Valida el barbero o realiza la asignación inteligente según la especialidad requerida (HTTP 404 si no existe, 422 si el horario no está disponible).
+  3. `ServicioPermitidoValidator`: Comprueba la existencia del servicio en el catálogo activo (HTTP 404).
+  4. `ConcurrenciaFranjaValidator`: Asegura el cumplimiento del límite máximo de 3 clientes por franja horaria.
+* **Persistencia transaccional y atómica:** 
+  * Se configuró `MongoConfig` con `MongoTransactionManager`.
+  * Se implementó control atómico mediante `mongoTemplate.findAndModify` sobre la cuota, asegurando la reversión (*rollback*) automática si falla el guardado.
+* **Capa REST:** 
+  * Se desarrolló el `ReservaController` habilitando el endpoint `POST /api/v1/reservas`.
+* **Pruebas unitarias:** 
+  * Se incorporaron las pruebas correspondientes en `ReservaServiceTest`.

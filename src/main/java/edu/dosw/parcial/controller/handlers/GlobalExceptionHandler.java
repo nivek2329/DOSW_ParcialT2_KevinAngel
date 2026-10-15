@@ -3,6 +3,7 @@ package edu.dosw.parcial.controller.handlers;
 import edu.dosw.parcial.controller.dtos.response.ErrorResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -22,6 +23,13 @@ public class GlobalExceptionHandler {
         log.warn("Excepcion de negocio [{}] : {}", ex.getCodigo(), ex.getMessage());
         ErrorResponseDTO error = new ErrorResponseDTO(ex.getCodigo(), ex.getMessage(), LocalDateTime.now());
         return new ResponseEntity<>(error, ex.getStatus());
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<ErrorResponseDTO> handleDuplicateKeyException(DuplicateKeyException ex) {
+        log.warn("Conflicto de concurrencia por clave duplicada: {}", ex.getMessage());
+        ErrorResponseDTO error = new ErrorResponseDTO("E01", "Conflicto de concurrencia al procesar la reserva", LocalDateTime.now());
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
