@@ -1,10 +1,12 @@
 package edu.dosw.parcial.controller.dtos.request;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.NotBlank;
 
 public class LoginRequestDTO {
 
     @NotBlank(message = "El correo no puede estar vacio")
+    @JsonAlias("email")
     private String correo;
 
     @NotBlank(message = "La contrasena no puede estar vacia")
