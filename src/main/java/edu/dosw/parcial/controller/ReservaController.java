@@ -67,4 +67,18 @@ public class ReservaController {
         }
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping
+    @Operation(summary = "Consultar todas las reservas (Solo ADMIN)", description = "Retorna todas las reservas registradas en el sistema")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Consulta exitosa de todas las reservas")
+    })
+    public ResponseEntity<List<ReservaResponseDTO>> consultarTodasLasReservas() {
+        List<Reserva> reservas = reservaService.consultarTodasLasReservas();
+        List<ReservaResponseDTO> response = new ArrayList<>();
+        for (Reserva r : reservas) {
+            response.add(reservaMapper.toResponseDTO(r));
+        }
+        return ResponseEntity.ok(response);
+    }
 }

@@ -155,4 +155,14 @@ public class ReservaServiceImpl implements ReservaService {
         return result;
     }
 
+    @Override
+    public List<Reserva> consultarTodasLasReservas() {
+        log.info("Consultando todas las reservas del sistema (Administrador)");
+        List<ReservaDocument> docs = reservaRepository.findAllByOrderByFechaDescHoraInicioDesc();
+        List<Reserva> result = new ArrayList<>();
+        for (ReservaDocument doc : docs) {
+            result.add(reservaEntityMapper.toDomain(doc));
+        }
+        return result;
     }
+}
