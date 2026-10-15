@@ -6,6 +6,7 @@ import edu.dosw.parcial.core.models.Reserva;
 import java.util.List;
 
 public interface ReservaService {
-    Reserva pedirTurno(ReservaRequestDTO request, String clienteEmail);
-    List<Reserva> consultarMisReservas(String clienteEmail);
+    Reserva pedirTurno(ReservaRequestDTO request, String authenticatedEmail);
+    List<Reserva> consultarMisReservas(String authenticatedEmail);
+    List<Reserva> consultarTodasLasReservas();
 }
