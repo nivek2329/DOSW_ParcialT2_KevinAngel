@@ -27,6 +27,7 @@
 20. [consultar-mis-reservas](#20-consultar-mis-reservas)
 21. [consultar-todas-las-reservas](#20-consultar-todas-las-reservas)
 22. [iniciar-sesion](#22-iniciar-sesion)
+23. [Evidencias](#23-Evidencias)
 
 ## 1. Datos del estudiante
 
@@ -577,3 +578,34 @@ El paso final fue regresar a los controladores de los pasos anteriores para pone
 * En el `ReservaController` fuimos más cuidadosos con los permisos: configuramos que el `CLIENTE` solo tenga poder para crear citas y ver su propio historial (`POST /api/v1/reservas` y `GET /api/v1/reservas/mis-reservas`). Sin embargo, el `ADMIN` es el único que tiene permiso para consultar el listado global del negocio (`GET /api/v1/reservas`).
 
 Finalmente, si algún usuario intenta pasarse de listo y acceder a una función para la cual no tiene permisos, configuramos nuestro `GlobalExceptionHandler`. Ahora, el sistema atrapa automáticamente esa `AccessDeniedException` y lo rebota de forma controlada con un error HTTP 403 Forbidden.
+
+## 23. Evidencias
+
+Documentación con Swagger:
+<img width="800" height="449" alt="image" src="https://github.com/user-attachments/assets/c1926d52-715e-4823-b222-9d093aeb6f96" />
+<img width="1877" height="1082" alt="image" src="https://github.com/user-attachments/assets/4b9c2003-5c72-41de-9c7a-4016feae6387" />
+<img width="1046" height="961" alt="image" src="https://github.com/user-attachments/assets/60dff8d3-7ca7-4f52-b18f-6fe30933e11c" />
+<img width="1477" height="952" alt="image" src="https://github.com/user-attachments/assets/28adb1d2-2e69-474b-aea1-f8d256a72215" />
+
+
+
+
+Logs:
+<img width="1520" height="980" alt="image" src="https://github.com/user-attachments/assets/a740d7da-8dc8-4d3b-8ddf-67b99fe1c067" />
+<img width="1020" height="892" alt="image" src="https://github.com/user-attachments/assets/d310da0d-00d9-41c7-ae67-383dec231f74" />
+<img width="1046" height="961" alt="image" src="https://github.com/user-attachments/assets/fa5bf737-7d76-407d-a2e0-f45778162f5b" />
+
+Pruebas unitarias:
+<img width="1473" height="741" alt="image" src="https://github.com/user-attachments/assets/485323ac-4ca6-462e-85a8-794c3cc2ac54" />
+<img width="1482" height="756" alt="image" src="https://github.com/user-attachments/assets/843438ca-021e-4ac0-8510-a4e60edf3f1a" />
+<img width="1462" height="692" alt="image" src="https://github.com/user-attachments/assets/79a73bed-3e69-45d6-b016-bfbda5f98fdf" />
+<img width="1600" height="722" alt="image" src="https://github.com/user-attachments/assets/8f6c8a0b-4506-4547-8d2d-5e19ade0f3bb" />
+
+
+Pipeline y despliegue:
+
+
+
+
+
+
