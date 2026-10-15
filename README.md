@@ -20,6 +20,10 @@
 16. [Punto-5](#16-punto-5)
 17. [Punto-6](#17-punto-6)
 
+## Fase de Implementacion
+
+18. [Crear-Turno](#18-Crear-Turno)
+
 ## 1. Datos del estudiante
 
 - **Nombre completo:** Kevin Andrey Angel Acevedo,santiago andres garcia
@@ -494,3 +498,26 @@ Basado en la configuración real de GitHub Actions de nuestro repositorio (`.git
 | **Nivel de Detalle** | **Extremadamente detallado y técnico:** Incluye trazas de error (*Stack Traces*), nombres de clases Java (`ReservaServiceImpl.java:85`), queries ejecutadas en MongoDB, Correlation IDs, memoria y tiempos de CPU. | **Amigable, conciso y funcional:** Explica claramente el motivo del rechazo en lenguaje comprensible sin detalles técnicos de infraestructura (ej: *"No hay disponibilidad para esta hora. Por favor elija otro horario"*). |
 | **Seguridad y Prevención de Fugas (*Information Disclosure*)** | Acceso restringido con autenticación y auditoría; contiene la causa raíz para depurar. | **Ofuscado y blindado:** Nunca debe revelar nombres de tablas, versiones de librerías, excepciones internas de Java (`NullPointerException`, `MongoSocketException`) ni detalles de la arquitectura interna para evitar ataques de reconocimiento (OWASP A05). |
 | **Ejemplo Comparativo ante fallo de DB:** | `ERROR [ReservaService] [req-89a1] MongoTimeoutException: Timed out after 30000 ms while waiting to connect to [mongo-atlas.net:27017]. StackTrace: ...` | `HTTP 500 Internal Server Error` ➔ `{"codigo": "ERR-500", "mensaje": "Ocurrió un error inesperado al procesar su solicitud. Intente nuevamente más tarde.", "timestamp": "2026-10-13T22:30:00"}` |
+
+## 18. Crear-Turno
+
+### Descripción del alcance de este paso: Implementación de Reservas
+
+En esta segunda parte del proyecto nos metimos de lleno en la funcionalidad principal de Bob's Barber: lograr que los clientes puedan agendar sus citas sin que el sistema colapse. 
+
+Para arrancar, tuvimos que hacerle un par de ajustes a lo que ya traíamos del Paso 1. Le enseñamos a nuestro `TurnoRepository` a buscar huecos libres pidiéndole fechas y horas exactas (usando métodos como `findByFechaAndHoraInicioAndEstado`). Además, nos adelantamos a un problema clásico: ¿qué pasa si dos personas hacen clic en "Reservar" exactamente al mismo milisegundo por el último cupo? Para que la aplicación no explote, configuramos el `GlobalExceptionHandler` para que atrape ese choque en la base de datos (`DuplicateKeyException`) y lo convierta amablemente en un error HTTP 409 (código `E01`), avisando que hubo un conflicto.
+
+Con esa base lista, creamos las nuevas piezas del rompecabezas: las entidades `Reserva`, `Servicio`, `EstadoReserva` y un documento clave llamado `CuotaFranjaDocument`, que es el que nos ayuda a llevar la cuenta de cuánta gente hay en el local.
+
+**El motor de validaciones (Nuestra Cadena de Responsabilidad)**
+Aquí está el corazón de la reserva. Armamos un filtro de 4 pasos súper estricto que funciona bajo el principio *fail-fast* (si algo falla, cortamos el proceso ahí mismo para no gastar memoria de más). Lo explicamos así:
+
+1. Primero entra el `FranjaDisponibilidadValidator`, que le echa un ojo rápido al horario para ver si tiene sentido y si hay disponibilidad preliminar.
+2. Luego pasa al `BarberoDisponibleValidator`. Este es súper interesante porque si el cliente no eligió a nadie, el sistema hace una asignación inteligente: busca qué barbero está libre y, además, sabe hacer el corte que pidió el cliente. (Si no existe nadie con esa habilidad, lanzamos un error 404, y si están todos ocupados, un 422).
+3. El tercer filtro es el `ServicioPermitidoValidator`, que simplemente va al catálogo a confirmar que el servicio que pidieron de verdad exista (si inventan un código, lanzamos un 404).
+4. Y cerramos con el `ConcurrenciaFranjaValidator`, que es el guardia de seguridad que garantiza que jamás pasemos de nuestro límite de 3 clientes por franja.
+
+**Asegurando los datos (Transacciones y Atomicidad)**
+A nivel de base de datos no podíamos correr riesgos de guardar reservas a medias. Configuramos el `MongoTransactionManager` en nuestro `MongoConfig` para habilitar transacciones reales. Para actualizar los cupos sin pisarnos, usamos una operación súper segura (atómica) con `mongoTemplate.findAndModify`. Si por alguna razón explota algo al momento de guardar la reserva final, el sistema hace una reversión automática (rollback) y deja los cupos tal como estaban.
+
+Finalmente, para que los clientes puedan usar todo esto, creamos el `ReservaController` abriendo la ruta `POST /api/v1/reservas`. Y claro, nos aseguramos de que toda esta lógica funcione a la perfección con nuestras pruebas unitarias en `ReservaServiceTest`.
