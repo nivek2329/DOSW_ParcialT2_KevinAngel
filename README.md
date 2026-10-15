@@ -585,9 +585,7 @@ Documentación con Swagger:
 <img width="800" height="449" alt="image" src="https://github.com/user-attachments/assets/c1926d52-715e-4823-b222-9d093aeb6f96" />
 <img width="1877" height="1082" alt="image" src="https://github.com/user-attachments/assets/4b9c2003-5c72-41de-9c7a-4016feae6387" />
 <img width="1046" height="961" alt="image" src="https://github.com/user-attachments/assets/60dff8d3-7ca7-4f52-b18f-6fe30933e11c" />
-<img width="1477" height="952" alt="image" src="https://github.com/user-attachments/assets/28adb1d2-2e69-474b-aea1-f8d256a72215" />
-
-
+<img width="1198" height="750" alt="image" src="https://github.com/user-attachments/assets/294783f3-e034-4a43-8dea-2c0bc3535e51" />
 
 
 Logs:
@@ -604,6 +602,7 @@ Pruebas unitarias:
 
 Pipeline y despliegue:
 
+<img width="1910" height="564" alt="image" src="https://github.com/user-attachments/assets/c8403b30-4df7-43d8-8483-eeb66ce88625" />
 
 
 
