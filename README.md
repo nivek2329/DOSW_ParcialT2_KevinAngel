@@ -25,6 +25,7 @@
 18. [Crear-Turno](#18-Crear-Turno)
 19. [Pedir-Turno](#19-Pedir-Turno)
 20. [consultar-mis-reservas](#20-consultar-mis-reservas)
+21. [consultar-todas-las-reservas](#20-consultar-todas-las-reservas)
 
 ## 1. Datos del estudiante
 
@@ -543,4 +544,13 @@ Para lograrlo, empezamos trabajando desde abajo hacia arriba. En la capa de dato
 
 Una vez tuvimos los datos, subimos a la capa de negocio. En nuestro `ReservaService` (junto con su clase `ReservaServiceImpl`), creamos el método `consultarMisReservas(clienteEmail)`. Este método actúa como puente: recibe el correo del cliente, va a buscar las reservas al repositorio y se encarga de mapearlas (transformarlas) en un formato limpio para que el usuario solo vea la información que le interesa.
 
-Finalmente, para que los clientes puedan acceder a toda esta lógica desde su pantalla, conectamos los cables en la capa web. Fuimos al `ReservaController` y abrimos una nueva ruta: el endpoint `GET /api/v1/reservas/mis-reservas`. A través de esta ruta, el cliente hace la petición y nuestro sistema le devuelve todo su historial de citas al instante..
+Finalmente, para que los clientes puedan acceder a toda esta lógica desde su pantalla, conectamos los cables en la capa web. Fuimos al `ReservaController` y abrimos una nueva ruta: el endpoint `GET /api/v1/reservas/mis-reservas`. A través de esta ruta, el cliente hace la petición y nuestro sistema le devuelve todo su historial de citas al instante.
+
+## 21. consultar-todas-las-reservas
+### Descripción del alcance de este paso
+* **Repositorio (`ReservaRepository`):** 
+  * Se agregó el método de consulta ordenada cronológicamente `findAllByOrderByFechaCreacionDesc`.
+* **Lógica de Negocio (`ReservaService` y `ReservaServiceImpl`):** 
+  * Se implementó el método `consultarTodasLasReservas()`, encargado de retornar el listado completo de las reservas registradas en la barbería.
+* **Capa REST (`ReservaController`):** 
+  * Se incorporó el endpoint `GET /api/v1/reservas` para exponer la información administrativa.
