@@ -2,7 +2,7 @@ name: CI/CD - DOSW Parcial T2
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, feature/hot-fix]
 
 env:
   IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/dosw-parcial-t2
